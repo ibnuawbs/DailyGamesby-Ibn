@@ -349,32 +349,6 @@ async function muatSoalDariJson() {
     }
 }
 
-    try {
-        const response = await fetch('soal.json');
-        const data = await response.json();
-        
-        // Mengambil tanggal hari ini (1-31)
-        const hari = new Date().getDate();
-        
-        // Ambil soal berdasarkan tanggal. Jika tanggal melebihi jumlah soal (contoh jika hanya ada 5 id), kembali ke ID 1
-        const targetId = data[hari] ? hari : "1";
-        const soal = data[targetId];
-
-        // Memasukkan array puzzle dan solution ke variabel array satu dimensi
-        for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
-            solution.push(soal.solution[r][c]);
-            clues.push(soal.puzzle[r][c]);
-        }
-
-        document.getElementById('game-level-info').textContent = `Lvl ${soal.level}`;
-        initGrid();
-        startTimer();
-    } catch (error) {
-        console.error("Gagal memuat soal dari soal.json:", error);
-        document.getElementById('game-level-info').textContent = "Error";
-    }
-}
-
 function initGrid() {
     gridElement.innerHTML = '';
     for (let i = 0; i < 36; i++) {
