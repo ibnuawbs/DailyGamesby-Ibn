@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>About Ibn</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.cdnfonts.com/css/metropolis" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed-variant": "#3323cc",
+                    "on-surface": "#0b1c30",
+                    "error-container": "#ffdad6",
+                    "on-tertiary": "#ffffff",
+                    "secondary": "#565e74",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "on-primary": "#ffffff",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-tertiary-container": "#dadcde",
+                    "inverse-on-surface": "#eaf1ff",
+                    "outline-variant": "#c7c4d8",
+                    "inverse-primary": "#c3c0ff",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed-dim": "#c4c7c9",
+                    "surface-variant": "#d3e4fe",
+                    "primary": "#3525cd",
+                    "on-secondary-fixed": "#131b2e",
+                    "primary-fixed": "#e2dfff",
+                    "tertiary-fixed": "#e0e3e5",
+                    "outline": "#777587",
+                    "on-primary-fixed": "#0f0069",
+                    "surface-container": "#e5eeff",
+                    "secondary-fixed": "#dae2fd",
+                    "on-secondary-container": "#5c647a",
+                    "inverse-surface": "#213145",
+                    "tertiary-container": "#5e6163",
+                    "surface-tint": "#4d44e3",
+                    "primary-container": "#4f46e5",
+                    "surface-container-high": "#dce9ff",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "surface": "#f8f9ff",
+                    "on-tertiary-fixed-variant": "#444749",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#eff4ff",
+                    "background": "#f8f9ff",
+                    "on-surface-variant": "#464555",
+                    "on-error": "#ffffff",
+                    "on-background": "#0b1c30",
+                    "on-primary-container": "#dad7ff",
+                    "surface-bright": "#f8f9ff",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "on-tertiary-fixed": "#191c1e",
+                    "on-error-container": "#93000a",
+                    "surface-dim": "#cbdbf5",
+                    "tertiary": "#46494b",
+                    "secondary-container": "#dae2fd",
+                    "on-secondary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "element-spacing": "1rem",
+                    "block-gap": "4px",
+                    "grid-gap": "2px",
+                    "button-height": "3.5rem",
+                    "container-padding": "1.5rem"
+            },
+            "fontFamily": {
+                    "cell-fixed": ["Inter"],
+                    "button-label": ["Inter"],
+                    "status-label": ["Inter"],
+                    "display-game-number": ["Metropolis"],
+                    "cell-input": ["Inter"],
+                    "cell-note": ["Inter"]
+            },
+            "fontSize": {
+                    "cell-fixed": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "button-label": ["16px", {"lineHeight": "24px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "status-label": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "display-game-number": ["36px", {"lineHeight": "44px", "fontWeight": "600"}],
+                    "cell-input": ["24px", {"lineHeight": "32px", "fontWeight": "400"}],
+                    "cell-note": ["10px", {"lineHeight": "12px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f8f9ff;
+            color: #0b1c30;
+            -webkit-font-smoothing: antialiased;
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        .heading-font {
+            font-family: 'Metropolis', sans-serif !important;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .ibn-character {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .face {
+            width: 130px;
+            height: 150px;
+            background: white;
+            border: 3.5px solid #000;
+            border-radius: 60px 60px 50px 50px;
+            position: absolute;
+            left: 35px;
+            top: 40px;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        /* Bowl Cut Hair */
+        .hair-container {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            width: 160px;
+            height: 110px;
+            z-index: 5;
+        }
+
+        .hair-base {
+            width: 150px;
+            height: 85px;
+            background: #000;
+            border-radius: 75px 75px 20px 20px;
+            position: absolute;
+            top: 10px;
+            left: 5px;
+        }
+
+        /* Middle Parting Gap */
+        .hair-wave-1 {
+            width: 8px;
+            height: 20px;
+            background: white;
+            position: absolute;
+            top: 70px;
+            left: 76px;
+            z-index: 6;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .hair-quiff {
+            display: none;
+        }
+
+        .ear-css {
+            width: 18px;
+            height: 28px;
+            background: white;
+            border: 3.5px solid #000;
+            position: absolute;
+            top: 110px;
+            z-index: 1;
+        }
+        .ear-left {
+            left: 24px;
+            border-radius: 50% 10px 10px 50%;
+        }
+        .ear-right {
+            right: 24px;
+            border-radius: 10px 50% 50% 10px;
+        }
+
+        .glasses-frame {
+            position: absolute;
+            top: 55px;
+            left: -10px;
+            display: flex;
+            align-items: center;
+            z-index: 10;
+        }
+        .lens-css {
+            width: 60px;
+            height: 50px;
+            border: 3.5px solid #000;
+            border-radius: 14px;
+            background: transparent;
+            position: relative;
+        }
+        .bridge-css {
+            width: 12px;
+            height: 3.5px;
+            background: #000;
+        }
+
+        .eye-css {
+            width: 8px;
+            height: 8px;
+            background: #000;
+            border-radius: 50%;
+            position: absolute;
+            top: 20px;
+            left: 24px;
+        }
+
+        .eyebrow {
+            width: 20px;
+            height: 6px;
+            background: #000;
+            border-radius: 3px;
+            position: absolute;
+            top: 38px;
+            z-index: 11;
+        }
+        .eb-l {
+            left: 15px;
+            transform: rotate(-5deg);
+        }
+        .eb-r {
+            left: 95px;
+            transform: rotate(5deg);
+        }
+
+        .smile-css {
+            width: 32px;
+            height: 16px;
+            border-bottom: 3.5px solid #000;
+            border-radius: 0 0 16px 16px;
+            position: absolute;
+            bottom: 30px;
+            left: 49px;
+            transform: rotate(0deg);
+        }
+
+        .nose {
+            width: 12px;
+            height: 10px;
+            border-radius: 6px;
+            border: 2.5px solid #000;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            position: absolute;
+            top: 102px;
+            left: 59px;
+            z-index: 5;
+            transform: scaleX(0.8);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hover-lift {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .hover-lift:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<main class="py-20 px-container-padding max-w-2xl mx-auto flex flex-col items-center min-h-screen">
+<!-- Heading remains Metropolis/Serif as established -->
+<h1 class="heading-font text-display-game-number text-on-surface mb-16 fade-in">About Ibn</h1>
+<!-- Pure CSS Character Recreated from IMAGE_4 -->
+<div class="mb-16 fade-in" style="animation-delay: 0.2s">
+<div class="ibn-character hover-lift">
+<!-- Ears -->
+<div class="ear-css ear-left"></div>
+<div class="ear-css ear-right"></div>
+<!-- Head Container -->
+<div class="face">
+<!-- Eyebrows -->
+<div class="eyebrow eb-l"></div>
+<div class="eyebrow eb-r"></div>
+<!-- Glasses -->
+<div class="glasses-frame">
+<div class="lens-css">
+<div class="eye-css"></div>
+</div>
+<div class="bridge-css"></div>
+<div class="lens-css">
+<div class="eye-css" style="left: 20px;"></div>
+</div>
+</div>
+<!-- Nose -->
+<div class="nose"></div>
+<!-- Friendly Smile -->
+<div class="smile-css"></div>
+</div>
+<!-- Hair - layered for texture -->
+<div class="hair-container">
+<div class="hair-base"></div>
+<div class="hair-wave-1"></div>
+<div class="hair-quiff"></div>
+</div>
+</div>
+</div>
+<!-- Text Content in Inter -->
+<div class="text-center space-y-6 fade-in" style="animation-delay: 0.4s">
+<p class="font-semibold text-xl text-black">Hi, I'm Ibn.</p>
+<p class="text-on-surface-variant leading-relaxed text-base">
+            I’m a puzzle enthusiast who just happens to know how to build them in the digital world.
+        </p>
+<p class="text-on-surface-variant leading-relaxed text-base">
+            To me, a puzzle is never just a game. It is a masterclass in structure, logic, and harmony. Every piece has a designated coordinate, every variable affects the outcome, and there is an undeniable elegance when everything finally clicks into place.
+        </p>
+<p class="text-on-surface-variant leading-relaxed text-base">
+            I’ve always been fascinated by timeless puzzles—the ones that challenge the mind to see the bigger picture while meticulously auditing the smallest details. But as the world shifts, I realized these brilliant mental models shouldn’t just live on cardboard or paper. They deserve a digital canvas.
+        </p>
+<p class="heading-font text-on-surface text-2xl pt-8">
+            Welcome to my space. Let’s solve something great together.
+        </p>
+<!-- Navigation Button -->
+<div class="pt-12 fade-in" style="animation-delay: 0.6s">
+<a class="inline-flex items-center justify-center px-10 py-3 bg-primary text-on-primary font-medium rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/20" href="index.html">
+                Let's Play!
+            </a>
+</div>
+</div>
+</main>
+<script>
+    // Micro-interaction for the character illustration
+    const character = document.querySelector('.ibn-character');
+    const face = document.querySelector('.face');
+    const hair = document.querySelector('.hair-main');
+    const quiff = document.querySelector('.hair-quiff');
+    const glasses = document.querySelector('.glasses-frame');
+
+    character.addEventListener('mousemove', (e) => {
+        const { left, top, width, height } = character.getBoundingClientRect();
+        const x = (e.clientX - left) / width - 0.5;
+        const y = (e.clientY - top) / height - 0.5;
+        
+        face.style.transform = `translate(${x * 6}px, ${y * 4}px)`;
+        glasses.style.transform = `translate(${x * 10}px, ${y * 6}px)`;
+        hair.style.transform = `translate(${x * 4}px, ${y * 2}px)`;
+        quiff.style.transform = `translate(${x * 4}px, ${y * 2}px) rotate(15deg)`;
+    });
+
+    character.addEventListener('mouseleave', () => {
+        const elements = [face, glasses, hair, quiff];
+        elements.forEach(el => {
+            el.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            if (el === quiff) {
+                el.style.transform = 'translate(0, 0) rotate(15deg)';
+            } else {
+                el.style.transform = 'translate(0, 0)';
+            }
+        });
+        setTimeout(() => {
+            elements.forEach(el => el.style.transition = '');
+        }, 400);
+    });
+</script>
+</body></html>
