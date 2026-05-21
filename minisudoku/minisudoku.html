@@ -1,602 +1,559 @@
-<!DOCTYPE html><html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
 <title>Daily Sudoku 6x6 by Ibn</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "on-background": "#0b1c30",
-                        "primary": "#3525cd",
-                        "surface": "#f8f9ff",
-                        "surface-container": "#e5eeff",
-                        "outline-variant": "#c7c4d8",
-                    },
-                    "keyframes": {
-                        "cooldown": { "0%": { width: "0%" }, "100%": { width: "100%" } },
-                        "flashGlow": {
-                            "0%": { "backgroundColor": "rgba(34, 197, 94, 0.4)", "filter": "brightness(1.2)" },
-                            "50%": { "backgroundColor": "rgba(79, 70, 229, 0.3)", "filter": "brightness(1.3)" },
-                            "100%": { "filter": "brightness(1)" }
-                        }
-                    },
-                    "animation": {
-                        "cooldown": "cooldown 10s linear",
-                        "flash": "flashGlow 0.6s ease-in-out"
-                    }
-                }
-            }
-        }
-    </script>
+tailwind.config = {
+darkMode: "class",
+theme: {
+extend: {
+"colors": {
+"on-background": "#0b1c30",
+"primary": "#3525cd",
+"surface": "#f8f9ff",
+"surface-container": "#e5eeff",
+"outline-variant": "#c7c4d8",
+},
+"keyframes": {
+"cooldown": { "0%": { width: "0%" }, "100%": { width: "100%" } },
+"flashGlow": {
+"0%": { "backgroundColor": "rgba(34, 197, 94, 0.4)", "filter": "brightness(1.2)" },
+"50%": { "backgroundColor": "rgba(79, 70, 229, 0.3)", "filter": "brightness(1.3)" },
+"100%": { "filter": "brightness(1)" }
+}
+},
+"animation": {
+"cooldown": "cooldown 10s linear",
+"flash": "flashGlow 0.6s ease-in-out"
+}
+}
+}
+}
+</script>
 <style>
-        body, button, span, div, h1, h2, h3, p { font-family: 'Inter', sans-serif !important; }
-        .material-symbols-outlined {
-            font-family: 'Material Symbols Outlined' !important;
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            display: inline-block;
-            line-height: 1 !important;
-            width: auto; height: auto;
-        }
-        
-        .sudoku-grid-container { aspect-ratio: 1 / 1; }
-
-        .cell { background-color: #f8f8f8; color: #000000; font-size: 22px !important; }
-        @media (min-width: 640px) { .cell { font-size: 26px !important; } }
-        
-        .cell[data-fixed="true"] { color: #000000; font-weight: 600; }
-        .cell:not([data-fixed="true"]) { color: #3525cd; font-weight: 400; }
-        
-        .block-border-right { border-right: 3px solid rgba(0, 0, 0, 0.35); }
-        .block-border-bottom { border-bottom: 3px solid rgba(0, 0, 0, 0.35); }
-
-        .cell.highlight-crosshair { background-color: #bfdbfe !important; }
-        .cell.highlight-same-number { background-color: #cbd5e1 !important; }
-        .cell.selected { background-color: #3525cd !important; color: #ffffff !important; z-index: 10; }
-        .cell.error-state { background-color: #ba1a1a !important; color: #ffffff !important; z-index: 10; }
-
-        /* SOFT DARK MODE THEME */
-        html.dark body { background-color: #121212 !important; color: #e2e8f0 !important; }
-        html.dark header { background-color: #1a1a1a !important; }
-        html.dark .bg-surface-container-lowest { background-color: #121212 !important; }
-        html.dark .bg-surface-container { background-color: #1a1a1a !important; }
-        html.dark .bg-surface-container-high { background-color: #262626 !important; color: #e2e8f0 !important; }
-        html.dark .text-on-surface-variant { color: #cbd5e1 !important; }
-        html.dark .bg-outline-variant { background-color: #475569 !important; }
-        html.dark .block-border-right { border-right: 3px solid rgba(255, 255, 255, 0.3); }
-        html.dark .block-border-bottom { border-bottom: 3px solid rgba(255, 255, 255, 0.3); }
-
-        html.dark .cell { background-color: #1e1e1e; color: #e2e8f0; }
-        html.dark .cell[data-fixed="true"] { color: #e2e8f0; font-weight: 600; }
-        html.dark .cell:not([data-fixed="true"]) { color: #bfdbfe; } 
-        html.dark #number-pad .num-btn { color: #ffffff !important; }
-
-        html.dark .cell.highlight-crosshair { background-color: #334155 !important; } 
-        html.dark .cell.highlight-same-number { background-color: #475569 !important; } 
-        html.dark .cell.selected { background-color: #4f46e5 !important; color: #ffffff !important; }
-        html.dark .cell.error-state { background-color: #7f1d1d !important; color: #fca5a5 !important; }
-
-        .animate-grid-flash { animation: flashGlow 0.6s ease-in-out; }
-        #hint-cooldown-bar, #check-cooldown-bar { display: none; }
-        #hint-btn:disabled #hint-cooldown-bar, #check-btn:disabled #check-cooldown-bar { display: block; }
-        
-        .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 50; }
-        .modal-overlay.active { display: flex; }
-        .paused-board { filter: blur(8px); pointer-events: none; }
-
-        /* NATIVE STABLE TABLE TUTORIAL GRID SYSTEM */
-        .tutorial-table { width: 100%; height: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; border: 3px solid #000000; }
-        html.dark .tutorial-table { border-color: #e2e8f0; }
-        
-        .t-cell { text-align: center; vertical-align: middle; font-size: 14px; font-weight: 500; color: #000000; background-color: #ffffff; border: 1px solid #cbd5e1; }
-        html.dark .t-cell { color: #e2e8f0; background-color: #1e1e1e; border-color: #475569; }
-        
-        /* INNER 2X3 BOLD PARTITIONS */
-        .tutorial-table td:nth-child(3) { border-right-width: 3px !important; border-right-color: #000000 !important; }
-        .tutorial-table tr:nth-child(2) td { border-bottom-width: 3px !important; border-bottom-color: #000000 !important; }
-        .tutorial-table tr:nth-child(4) td { border-bottom-width: 3px !important; border-bottom-color: #000000 !important; }
-        
-        html.dark .tutorial-table td:nth-child(3) { border-right-color: #e2e8f0 !important; }
-        html.dark .tutorial-table tr:nth-child(2) td { border-bottom-color: #e2e8f0 !important; }
-        html.dark .tutorial-table tr:nth-child(4) td { border-bottom-color: #e2e8f0 !important; }
-
-        .tutorial-table td { width: 16.66%; height: 16.66%; aspect-ratio: 1/1; }
-
-        .th-row { background-color: #cbd5e1 !important; color: #000000 !important; }
-        .th-col { background-color: #bfdbfe !important; color: #1e3a8a !important; }
-        .th-sub { background-color: #a7f3d0 !important; color: #064e3b !important; }
-        .th-target { background-color: #f59e0b !important; color: #ffffff !important; font-weight: 700; }
-
-        html.dark .th-row { background-color: #475569 !important; color: #e2e8f0 !important; }
-        html.dark .th-col { background-color: #1e3a8a !important; color: #bfdbfe !important; }
-        html.dark .th-sub { background-color: #065f46 !important; color: #a7f3d0 !important; }
-        html.dark .th-target { background-color: #d97706 !important; color: #ffffff !important; }
+body, button, span, div, h1, h2, h3, p { font-family: 'Inter', sans-serif !important; }
+.material-symbols-outlined {
+font-family: 'Material Symbols Outlined' !important;
+font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+display: inline-block;
+line-height: 1 !important;
+width: auto; height: auto;
+}
+.sudoku-grid-container { aspect-ratio: 1 / 1; }
+.cell { background-color: #f8f8f8; color: #000000; font-size: 22px !important; }
+@media (min-width: 640px) { .cell { font-size: 26px !important; } }
+.cell[data-fixed="true"] { color: #000000; font-weight: 600; }
+.cell:not([data-fixed="true"]) { color: #3525cd; font-weight: 400; }
+.block-border-right { border-right: 3px solid rgba(0, 0, 0, 0.35); }
+.block-border-bottom { border-bottom: 3px solid rgba(0, 0, 0, 0.35); }
+.cell.highlight-crosshair { background-color: #bfdbfe !important; }
+.cell.highlight-same-number { background-color: #cbd5e1 !important; }
+.cell.selected { background-color: #3525cd !important; color: #ffffff !important; z-index: 10; }
+.cell.error-state { background-color: #ba1a1a !important; color: #ffffff !important; z-index: 10; }
+/* SOFT DARK MODE THEME */
+html.dark body { background-color: #121212 !important; color: #e2e8f0 !important; }
+html.dark header { background-color: #1a1a1a !important; }
+html.dark .bg-surface-container-lowest { background-color: #121212 !important; }
+html.dark .bg-surface-container { background-color: #1a1a1a !important; }
+html.dark .bg-surface-container-high { background-color: #262626 !important; color: #e2e8f0 !important; }
+html.dark .text-on-surface-variant { color: #cbd5e1 !important; }
+html.dark .bg-outline-variant { background-color: #475569 !important; }
+html.dark .block-border-right { border-right: 3px solid rgba(255, 255, 255, 0.3); }
+html.dark .block-border-bottom { border-bottom: 3px solid rgba(255, 255, 255, 0.3); }
+html.dark .cell { background-color: #1e1e1e; color: #e2e8f0; }
+html.dark .cell[data-fixed="true"] { color: #e2e8f0; font-weight: 600; }
+html.dark .cell:not([data-fixed="true"]) { color: #bfdbfe; } 
+html.dark #number-pad .num-btn { color: #ffffff !important; }
+html.dark .cell.highlight-crosshair { background-color: #334155 !important; } 
+html.dark .cell.highlight-same-number { background-color: #475569 !important; } 
+html.dark .cell.selected { background-color: #4f46e5 !important; color: #ffffff !important; }
+html.dark .cell.error-state { background-color: #7f1d1d !important; color: #fca5a5 !important; }
+.animate-grid-flash { animation: flashGlow 0.6s ease-in-out; }
+#hint-cooldown-bar, #check-cooldown-bar { display: none; }
+#hint-btn:disabled #hint-cooldown-bar, #check-btn:disabled #check-cooldown-bar { display: block; }
+.modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 50; }
+.modal-overlay.active { display: flex; }
+.paused-board { filter: blur(8px); pointer-events: none; }
+/* NATIVE STABLE TABLE TUTORIAL GRID SYSTEM */
+.tutorial-table { width: 100%; height: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; border: 3px solid #000000; }
+html.dark .tutorial-table { border-color: #e2e8f0; }
+.t-cell { text-align: center; vertical-align: middle; font-size: 14px; font-weight: 500; color: #000000; background-color: #ffffff; border: 1px solid #cbd5e1; }
+html.dark .t-cell { color: #e2e8f0; background-color: #1e1e1e; border-color: #475569; }
+/* INNER 2X3 BOLD PARTITIONS */
+.tutorial-table td:nth-child(3) { border-right-width: 3px !important; border-right-color: #000000 !important; }
+.tutorial-table tr:nth-child(2) td { border-bottom-width: 3px !important; border-bottom-color: #000000 !important; }
+.tutorial-table tr:nth-child(4) td { border-bottom-width: 3px !important; border-bottom-color: #000000 !important; }
+html.dark .tutorial-table td:nth-child(3) { border-right-color: #e2e8f0 !important; }
+html.dark .tutorial-table tr:nth-child(2) td { border-bottom-color: #e2e8f0 !important; }
+html.dark .tutorial-table tr:nth-child(4) td { border-bottom-color: #e2e8f0 !important; }
+.tutorial-table td { width: 16.66%; height: 16.66%; aspect-ratio: 1/1; }
+.th-row { background-color: #cbd5e1 !important; color: #000000 !important; }
+.th-col { background-color: #bfdbfe !important; color: #1e3a8a !important; }
+.th-sub { background-color: #a7f3d0 !important; color: #064e3b !important; }
+.th-target { background-color: #f59e0b !important; color: #ffffff !important; font-weight: 700; }
+html.dark .th-row { background-color: #475569 !important; color: #e2e8f0 !important; }
+html.dark .th-col { background-color: #1e3a8a !important; color: #bfdbfe !important; }
+html.dark .th-sub { background-color: #065f46 !important; color: #a7f3d0 !important; }
+html.dark .th-target { background-color: #d97706 !important; color: #ffffff !important; }
 </style>
 </head>
 <body class="bg-background text-on-background min-h-screen flex flex-col overflow-x-hidden transition-colors duration-200">
 <header class="flex justify-between items-center px-6 w-full h-16 bg-surface dark:bg-background border-b border-outline-variant/10">
-    <h1 class="font-bold text-[22px] tracking-tight text-[#3525cd] dark:text-white">Daily Sudoku 6x6 by Ibn</h1>
+<h1 class="font-bold text-[22px] tracking-tight text-[#3525cd] dark:text-white">Daily Sudoku 6x6 by Ibn</h1>
 </header>
-
 <main class="flex-1 flex flex-col items-center justify-center p-4 max-w-[1200px] mx-auto w-full">
-    <div class="w-full max-w-[450px] mb-4">
-        <div class="flex justify-between items-center mb-3 px-1 gap-2">
-            <div class="flex items-center gap-1.5 shrink-0">
-                <div class="flex items-center gap-1.5 text-on-surface-variant text-[13px] bg-surface-container rounded-full px-3 py-1.5">
-                    <span class="material-symbols-outlined text-[18px]">timer</span>
-                    <span id="timer" class="font-medium">00:00</span>
-                </div>
-                <button class="flex items-center justify-center w-9 h-9 rounded-full bg-surface-container text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-90" id="pause-btn">
-                    <span class="material-symbols-outlined text-[22px]" id="pause-btn-icon">pause</span>
-                </button>
-            </div>
-
-            <div class="flex items-center justify-center text-on-surface-variant text-[13px] bg-surface-container rounded-full px-4 py-1.5 font-semibold shrink-0 min-w-[70px]">
-                <span id="game-level-info">Lvl --</span>
-            </div>
-
-            <div class="flex items-center gap-1.5 shrink-0">
-                <button class="flex items-center justify-center w-9 h-9 rounded-full bg-surface-container text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-90" id="tutorial-btn">
-                    <span class="material-symbols-outlined text-[22px]">help_outline</span>
-                </button>
-                <button class="flex items-center justify-center w-9 h-9 rounded-full bg-surface-container text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-90" id="dark-mode-btn">
-                    <span class="material-symbols-outlined text-[22px]" id="dark-mode-icon">dark_mode</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="relative">
-            <div class="sudoku-grid-container bg-surface-container-lowest shadow-lg rounded-xl overflow-hidden border-2 border-outline-variant transition-all duration-300" id="board-wrapper">
-                <div class="grid grid-cols-6 grid-rows-6 h-full w-full bg-outline-variant gap-[1px]" id="sudoku-grid"></div>
-            </div>
-            
-            <div class="absolute inset-0 z-20 hidden flex-col items-center justify-center bg-slate-900/10 rounded-xl backdrop-blur-[3px]" id="pause-overlay">
-                <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl flex flex-col items-center gap-5 border border-outline-variant/20">
-                    <div class="flex flex-col items-center gap-3">
-                        <span class="material-symbols-outlined text-primary text-6xl !w-16 !h-16 flex items-center justify-center">pause_circle</span>
-                        <h3 class="text-2xl text-on-surface dark:text-white font-bold">Game Paused</h3>
-                    </div>
-                    <button class="bg-primary hover:bg-primary/90 text-white px-10 py-3.5 rounded-full font-bold transition-all active:scale-95 shadow-lg flex items-center gap-2" id="resume-btn">
-                        <span class="material-symbols-outlined text-[24px]">play_arrow</span> Resume
-                    </button>
-                </div>
-            </div>
-
-            <div class="absolute inset-0 z-20 hidden flex-col items-center justify-center bg-slate-900/40 rounded-xl backdrop-blur-[4px]" id="daily-lock-overlay">
-                <div class="bg-white dark:bg-slate-800 p-6 mx-4 rounded-3xl shadow-2xl flex flex-col items-center gap-4 border border-outline-variant/20 text-center max-w-[360px]">
-                    <span class="material-symbols-outlined text-amber-500 text-5xl">lock</span>
-                    <h3 class="text-xl text-on-surface dark:text-white font-bold">Challenge Completed!</h3>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">You have solved today's puzzle. Please come back tomorrow for the next level challenge!</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="w-full max-w-[450px] flex flex-col gap-4" id="controls-wrapper">
-        <div class="grid grid-cols-6 gap-2" id="number-pad">
-            <button class="num-btn aspect-square flex items-center justify-center rounded-xl bg-surface-container text-primary font-bold text-[22px] hover:bg-primary hover:text-white transition-all active:scale-90" data-value="1">1</button>
-            <button class="num-btn aspect-square flex items-center justify-center rounded-xl bg-surface-container text-primary font-bold text-[22px] hover:bg-primary hover:text-white transition-all active:scale-90" data-value="2">2</button>
-            <button class="num-btn aspect-square flex items-center justify-center rounded-xl bg-surface-container text-primary font-bold text-[22px] hover:bg-primary hover:text-white transition-all active:scale-90" data-value="3">3</button>
-            <button class="num-btn aspect-square flex items-center justify-center rounded-xl bg-surface-container text-primary font-bold text-[22px] hover:bg-primary hover:text-white transition-all active:scale-90" data-value="4">4</button>
-            <button class="num-btn aspect-square flex items-center justify-center rounded-xl bg-surface-container text-primary font-bold text-[22px] hover:bg-primary hover:text-white transition-all active:scale-90" data-value="5">5</button>
-            <button class="num-btn aspect-square flex items-center justify-center rounded-xl bg-surface-container text-primary font-bold text-[22px] hover:bg-primary hover:text-white transition-all active:scale-90" data-value="6">6</button>
-        </div>
-        
-        <div class="flex justify-between items-center bg-surface-container rounded-2xl p-1 shadow-inner divide-x divide-outline-variant/60 dark:divide-slate-600/60">
-            <button class="flex-1 flex flex-col items-center justify-center text-on-surface-variant py-2 hover:bg-white dark:hover:bg-slate-700 transition-all active:scale-95 rounded-l-xl" id="undo-btn">
-                <span class="material-symbols-outlined text-[16px] sm:text-[20px]">undo</span>
-                <span class="text-[9px] font-bold mt-0.5 uppercase tracking-wider">Undo</span>
-            </button>
-            <button class="flex-1 flex flex-col items-center justify-center text-on-surface-variant py-2 hover:bg-white dark:hover:bg-slate-700 transition-all active:scale-95" id="erase-btn">
-                <span class="material-symbols-outlined text-[16px] sm:text-[20px]">backspace</span>
-                <span class="text-[9px] font-bold mt-0.5 uppercase tracking-wider">Erase</span>
-            </button>
-            <button class="flex-1 flex flex-col items-center justify-center text-on-surface-variant py-2 hover:bg-white dark:hover:bg-slate-700 transition-all active:scale-95 relative overflow-hidden group disabled:opacity-70" id="check-btn">
-                <div class="absolute bottom-0 left-0 h-1 bg-red-500/60 dark:bg-red-400 w-0 animate-cooldown" id="check-cooldown-bar"></div>
-                <span class="material-symbols-outlined text-[16px] sm:text-[20px]">visibility</span>
-                <span class="text-[9px] font-bold mt-0.5 uppercase tracking-wider leading-tight flex flex-col items-center">
-                    <span>Wrong</span>
-                    <span>Answer</span>
-                </span>
-            </button>
-            <button class="flex-1 flex flex-col items-center justify-center text-on-surface-variant py-2 hover:bg-white dark:hover:bg-slate-700 transition-all active:scale-95 rounded-r-xl relative overflow-hidden group disabled:opacity-70" id="hint-btn">
-                <div class="absolute bottom-0 left-0 h-1 bg-primary/60 dark:bg-indigo-400 w-0 animate-cooldown" id="hint-cooldown-bar"></div>
-                <span class="material-symbols-outlined text-[16px] sm:text-[20px]">lightbulb</span>
-                <span class="text-[9px] font-bold mt-0.5 uppercase tracking-wider">Hint</span>
-            </button>
-        </div>
-    </div>
+<div class="w-full max-w-[450px] mb-4">
+<div class="flex justify-between items-center mb-3 px-1 gap-2">
+<div class="flex items-center gap-1.5 shrink-0">
+<div class="flex items-center gap-1.5 text-on-surface-variant text-[13px] bg-surface-container rounded-full px-3 py-1.5">
+<span class="material-symbols-outlined text-[18px]">timer</span>
+<span id="timer" class="font-medium">00:00</span>
+</div>
+<button class="flex items-center justify-center w-9 h-9 rounded-full bg-surface-container text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-90" id="pause-btn">
+<span class="material-symbols-outlined text-[22px]" id="pause-btn-icon">pause</span>
+</button>
+</div>
+<div class="flex items-center justify-center text-on-surface-variant text-[13px] bg-surface-container rounded-full px-4 py-1.5 font-semibold shrink-0 min-w-[70px]">
+<span id="game-level-info">Lvl --</span>
+</div>
+<div class="flex items-center gap-1.5 shrink-0">
+<button class="flex items-center justify-center w-9 h-9 rounded-full bg-surface-container text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-90" id="tutorial-btn">
+<span class="material-symbols-outlined text-[22px]">help_outline</span>
+</button>
+<button class="flex items-center justify-center w-9 h-9 rounded-full bg-surface-container text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-90" id="dark-mode-btn">
+<span class="material-symbols-outlined text-[22px]" id="dark-mode-icon">dark_mode</span>
+</button>
+</div>
+</div>
+<div class="relative">
+<div class="sudoku-grid-container bg-surface-container-lowest shadow-lg rounded-xl overflow-hidden border-2 border-outline-variant transition-all duration-300" id="board-wrapper">
+<div class="grid grid-cols-6 grid-rows-6 h-full w-full bg-outline-variant gap-[1px]" id="sudoku-grid"></div>
+</div>
+<div class="absolute inset-0 z-20 hidden flex-col items-center justify-center bg-slate-900/10 rounded-xl backdrop-blur-[3px]" id="pause-overlay">
+<div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl flex flex-col items-center gap-5 border border-outline-variant/20">
+<div class="flex flex-col items-center gap-3">
+<span class="material-symbols-outlined text-primary text-6xl !w-16 !h-16 flex items-center justify-center">pause_circle</span>
+<h3 class="text-2xl text-on-surface dark:text-white font-bold">Game Paused</h3>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-white px-10 py-3.5 rounded-full font-bold transition-all active:scale-95 shadow-lg flex items-center gap-2" id="resume-btn">
+<span class="material-symbols-outlined text-[24px]">play_arrow</span> Resume
+</button>
+</div>
+</div>
+<div class="absolute inset-0 z-20 hidden flex-col items-center justify-center bg-slate-900/40 rounded-xl backdrop-blur-[4px]" id="daily-lock-overlay">
+<div class="bg-white dark:bg-slate-800 p-6 mx-4 rounded-3xl shadow-2xl flex flex-col items-center gap-4 border border-outline-variant/20 text-center max-w-[360px]">
+<span class="material-symbols-outlined text-amber-500 text-5xl">lock</span>
+<h3 class="text-xl text-on-surface dark:text-white font-bold">Challenge Completed!</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">You have solved today's puzzle. Please come back tomorrow for the next level challenge!</p>
+</div>
+</div>
+</div>
+</div>
+<div class="w-full max-w-[450px] flex flex-col gap-4" id="controls-wrapper">
+<div class="grid grid-cols-6 gap-2" id="number-pad">
+<button class="num-btn aspect-square flex items-center justify-center rounded-xl bg-surface-container text-primary font-bold text-[22px] hover:bg-primary hover:text-white transition-all active:scale-90" data-value="1">1</button>
+<button class="num-btn aspect-square flex items-center justify-center rounded-xl bg-surface-container text-primary font-bold text-[22px] hover:bg-primary hover:text-white transition-all active:scale-90" data-value="2">2</button>
+<button class="num-btn aspect-square flex items-center justify-center rounded-xl bg-surface-container text-primary font-bold text-[22px] hover:bg-primary hover:text-white transition-all active:scale-90" data-value="3">3</button>
+<button class="num-btn aspect-square flex items-center justify-center rounded-xl bg-surface-container text-primary font-bold text-[22px] hover:bg-primary hover:text-white transition-all active:scale-90" data-value="4">4</button>
+<button class="num-btn aspect-square flex items-center justify-center rounded-xl bg-surface-container text-primary font-bold text-[22px] hover:bg-primary hover:text-white transition-all active:scale-90" data-value="5">5</button>
+<button class="num-btn aspect-square flex items-center justify-center rounded-xl bg-surface-container text-primary font-bold text-[22px] hover:bg-primary hover:text-white transition-all active:scale-90" data-value="6">6</button>
+</div>
+<div class="flex justify-between items-center bg-surface-container rounded-2xl p-1 shadow-inner divide-x divide-outline-variant/60 dark:divide-slate-600/60">
+<button class="flex-1 flex flex-col items-center justify-center text-on-surface-variant py-2 hover:bg-white dark:hover:bg-slate-700 transition-all active:scale-95 rounded-l-xl" id="undo-btn">
+<span class="material-symbols-outlined text-[16px] sm:text-[20px]">undo</span>
+<span class="text-[9px] font-bold mt-0.5 uppercase tracking-wider">Undo</span>
+</button>
+<button class="flex-1 flex flex-col items-center justify-center text-on-surface-variant py-2 hover:bg-white dark:hover:bg-slate-700 transition-all active:scale-95" id="erase-btn">
+<span class="material-symbols-outlined text-[16px] sm:text-[20px]">backspace</span>
+<span class="text-[9px] font-bold mt-0.5 uppercase tracking-wider">Erase</span>
+</button>
+<button class="flex-1 flex flex-col items-center justify-center text-on-surface-variant py-2 hover:bg-white dark:hover:bg-slate-700 transition-all active:scale-95 relative overflow-hidden group disabled:opacity-70" id="check-btn">
+<div class="absolute bottom-0 left-0 h-1 bg-red-500/60 dark:bg-red-400 w-0 animate-cooldown" id="check-cooldown-bar"></div>
+<span class="material-symbols-outlined text-[16px] sm:text-[20px]">visibility</span>
+<span class="text-[9px] font-bold mt-0.5 uppercase tracking-wider leading-tight flex flex-col items-center">
+<span>Wrong</span>
+<span>Answer</span>
+</span>
+</button>
+<button class="flex-1 flex flex-col items-center justify-center text-on-surface-variant py-2 hover:bg-white dark:hover:bg-slate-700 transition-all active:scale-95 rounded-r-xl relative overflow-hidden group disabled:opacity-70" id="hint-btn">
+<div class="absolute bottom-0 left-0 h-1 bg-primary/60 dark:bg-indigo-400 w-0 animate-cooldown" id="hint-cooldown-bar"></div>
+<span class="material-symbols-outlined text-[16px] sm:text-[20px]">lightbulb</span>
+<span class="text-[9px] font-bold mt-0.5 uppercase tracking-wider">Hint</span>
+</button>
+</div>
+</div>
 </main>
-
 <div class="modal-overlay items-center justify-center p-4 transition-opacity duration-300" id="tutorial-modal">
-    <div class="bg-white dark:bg-slate-800 max-w-[500px] w-full rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-outline-variant/30 dark:border-slate-700 animate-slideUp">
-        <div class="p-6 border-b border-outline-variant/30 dark:border-slate-700 flex justify-between items-center">
-            <h2 class="text-xl font-bold dark:text-white">How to Play Sudoku 6x6</h2>
-            <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-white transition-all" id="close-modal-top">
-                <span class="material-symbols-outlined text-[28px]">close</span>
-            </button>
-        </div>
-        <div class="p-6 overflow-y-auto max-h-[70vh] space-y-6">
-            
-            <div class="flex flex-col items-center gap-4">
-                <div class="w-full max-w-[260px] aspect-square rounded-xl overflow-hidden shadow-lg border: 2px solid black;">
-                    <table class="tutorial-table">
-                        <tr>
-                            <td class="t-cell"></td>
-                            <td class="t-cell"></td>
-                            <td class="t-cell th-col font-bold">5</td>
-                            <td class="t-cell"></td>
-                            <td class="t-cell"></td>
-                            <td class="t-cell"></td>
-                        </tr>
-                        <tr>
-                            <td class="t-cell font-bold">1</td>
-                            <td class="t-cell"></td>
-                            <td class="t-cell th-col"></td>
-                            <td class="t-cell"></td>
-                            <td class="t-cell"></td>
-                            <td class="t-cell"></td>
-                        </tr>
-                        <tr>
-                            <td class="t-cell th-sub"></td>
-                            <td class="t-cell th-sub"></td>
-                            <td class="t-cell th-target">3</td>
-                            <td class="t-cell th-row"></td>
-                            <td class="t-cell th-row font-bold">6</td>
-                            <td class="t-cell th-row"></td>
-                        </tr>
-                        <tr>
-                            <td class="t-cell th-sub"></td>
-                            <td class="t-cell th-sub"></td>
-                            <td class="t-cell th-col"></td>
-                            <td class="t-cell"></td>
-                            <td class="t-cell font-bold">1</td>
-                            <td class="t-cell"></td>
-                        </tr>
-                        <tr>
-                            <td class="t-cell"></td>
-                            <td class="t-cell"></td>
-                            <td class="t-cell th-col"></td>
-                            <td class="t-cell"></td>
-                            <td class="t-cell"></td>
-                            <td class="t-cell"></td>
-                        </tr>
-                        <tr>
-                            <td class="t-cell font-bold">2</td>
-                            <td class="t-cell"></td>
-                            <td class="t-cell th-col"></td>
-                            <td class="t-cell"></td>
-                            <td class="t-cell"></td>
-                            <td class="t-cell"></td>
-                        </tr>
-                    </table>
-                </div>
-                
-                <div class="flex flex-wrap gap-3 justify-center text-xs">
-                    <div class="flex items-center gap-1.5"><div class="w-3 h-3 th-row border border-slate-400"></div> Row</div>
-                    <div class="flex items-center gap-1.5"><div class="w-3 h-3 th-col border border-slate-400"></div> Column</div>
-                    <div class="flex items-center gap-1.5"><div class="w-3 h-3 th-sub border border-slate-400"></div> Subgrid 2x3</div>
-                    <div class="flex items-center gap-1.5"><div class="w-3 h-3 th-target border border-slate-400"></div> Target Cell</div>
-                </div>
-            </div>
-            
-            <div class="space-y-5">
-                <div class="flex gap-4">
-                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">1</span>
-                    <p class="text-sm leading-relaxed dark:text-slate-300">Each <b class="text-indigo-600 dark:text-indigo-400">Row</b>, <b class="text-blue-600 dark:text-blue-400">Column</b>, and <b class="text-emerald-600 dark:text-emerald-400">Subgrid 2x3</b> box must contain unique numbers from 1 to 6 without repetition.</p>
-                </div>
-                <div class="flex gap-4">
-                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">2</span>
-                    <p class="text-sm leading-relaxed dark:text-slate-300">Tap an empty cell on the board to select it, then choose a number from the number pad below to input your move.</p>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="bg-white dark:bg-slate-800 max-w-[500px] w-full rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-outline-variant/30 dark:border-slate-700 animate-slideUp">
+<div class="p-6 border-b border-outline-variant/30 dark:border-slate-700 flex justify-between items-center">
+<h2 class="text-xl font-bold dark:text-white">How to Play Sudoku 6x6</h2>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-white transition-all" id="close-modal-top">
+<span class="material-symbols-outlined text-[28px]">close</span>
+</button>
 </div>
-
+<div class="p-6 overflow-y-auto max-h-[70vh] space-y-6">
+<div class="flex flex-col items-center gap-4">
+<div class="w-full max-w-[260px] aspect-square rounded-xl overflow-hidden shadow-lg border: 2px solid black;">
+<table class="tutorial-table">
+<tr>
+<td class="t-cell"></td>
+<td class="t-cell"></td>
+<td class="t-cell th-col font-bold">5</td>
+<td class="t-cell"></td>
+<td class="t-cell"></td>
+<td class="t-cell"></td>
+</tr>
+<tr>
+<td class="t-cell font-bold">1</td>
+<td class="t-cell"></td>
+<td class="t-cell th-col"></td>
+<td class="t-cell"></td>
+<td class="t-cell"></td>
+<td class="t-cell"></td>
+</tr>
+<tr>
+<td class="t-cell th-sub"></td>
+<td class="t-cell th-sub"></td>
+<td class="t-cell th-target">3</td>
+<td class="t-cell th-row"></td>
+<td class="t-cell th-row font-bold">6</td>
+<td class="t-cell th-row"></td>
+</tr>
+<tr>
+<td class="t-cell th-sub"></td>
+<td class="t-cell th-sub"></td>
+<td class="t-cell th-col"></td>
+<td class="t-cell"></td>
+<td class="t-cell font-bold">1</td>
+<td class="t-cell"></td>
+</tr>
+<tr>
+<td class="t-cell"></td>
+<td class="t-cell"></td>
+<td class="t-cell th-col"></td>
+<td class="t-cell"></td>
+<td class="t-cell"></td>
+<td class="t-cell"></td>
+</tr>
+<tr>
+<td class="t-cell font-bold">2</td>
+<td class="t-cell"></td>
+<td class="t-cell th-col"></td>
+<td class="t-cell"></td>
+<td class="t-cell"></td>
+<td class="t-cell"></td>
+</tr>
+</table>
+</div>
+<div class="flex flex-wrap gap-3 justify-center text-xs">
+<div class="flex items-center gap-1.5"><div class="w-3 h-3 th-row border border-slate-400"></div> Row</div>
+<div class="flex items-center gap-1.5"><div class="w-3 h-3 th-col border border-slate-400"></div> Column</div>
+<div class="flex items-center gap-1.5"><div class="w-3 h-3 th-sub border border-slate-400"></div> Subgrid 2x3</div>
+<div class="flex items-center gap-1.5"><div class="w-3 h-3 th-target border border-slate-400"></div> Target Cell</div>
+</div>
+</div>
+<div class="space-y-5">
+<div class="flex gap-4">
+<span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">1</span>
+<p class="text-sm leading-relaxed dark:text-slate-300">Each <b class="text-indigo-600 dark:text-indigo-400">Row</b>, <b class="text-blue-600 dark:text-blue-400">Column</b>, and <b class="text-emerald-600 dark:text-emerald-400">Subgrid 2x3</b> box must contain unique numbers from 1 to 6 without repetition.</p>
+</div>
+<div class="flex gap-4">
+<span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">2</span>
+<p class="text-sm leading-relaxed dark:text-slate-300">Tap an empty cell on the board to select it, then choose a number from the number pad below to input your move.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
 <div class="modal-overlay items-center justify-center p-4 transition-opacity duration-300" id="win-modal">
-    <div class="bg-white dark:bg-slate-800 max-w-[400px] w-full rounded-3xl shadow-2xl overflow-hidden p-8 text-center flex flex-col items-center animate-fadeIn">
-        <div class="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6">
-            <span class="material-symbols-outlined text-green-600 dark:text-green-400 text-5xl">workspace_premium</span>
-        </div>
-        <h2 class="text-3xl font-bold mb-2 dark:text-white">Well Done!</h2>
-        <p class="text-slate-500 dark:text-slate-400 mb-8">Solved in <span class="font-bold text-primary dark:text-indigo-400" id="win-time">00:00</span>.</p>
-        <button class="w-full bg-primary hover:bg-primary/90 text-white py-4 rounded-full font-bold transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2" onclick="location.reload()">
-            <span class="material-symbols-outlined">refresh</span> Play Another Daily Games
-        </button>
-    </div>
+<div class="bg-white dark:bg-slate-800 max-w-[400px] w-full rounded-3xl shadow-2xl overflow-hidden p-8 text-center flex flex-col items-center animate-fadeIn">
+<div class="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 text-5xl">workspace_premium</span>
 </div>
-
+<h2 class="text-3xl font-bold mb-2 dark:text-white">Well Done!</h2>
+<p class="text-slate-500 dark:text-slate-400 mb-8">Solved in <span class="font-bold text-primary dark:text-indigo-400" id="win-time">00:00</span>.</p>
+<button class="w-full bg-primary hover:bg-primary/90 text-white py-4 rounded-full font-bold transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2" onclick="location.reload()">
+<span class="material-symbols-outlined">refresh</span> Play Another Daily Games
+</button>
+</div>
+</div>
 <script>
-    let solution = [], clues = [];
-    let currentSelectedCell = null, history = [], timerSeconds = 0;
-    let hintOnCooldown = false, checkOnCooldown = false, isPaused = false, timerInterval = null, gameFinished = false;
+let solution = [], clues = [];
+let currentSelectedCell = null, history = [], timerSeconds = 0;
+let hintOnCooldown = false, checkOnCooldown = false, isPaused = false, timerInterval = null, gameFinished = false;
+const gridElement = document.getElementById('sudoku-grid');
+const boardWrapper = document.getElementById('board-wrapper');
+const pauseOverlay = document.getElementById('pause-overlay');
+const dailyLockOverlay = document.getElementById('daily-lock-overlay');
+const winModal = document.getElementById('win-modal');
 
-    const gridElement = document.getElementById('sudoku-grid');
-    const boardWrapper = document.getElementById('board-wrapper');
-    const pauseOverlay = document.getElementById('pause-overlay');
-    const dailyLockOverlay = document.getElementById('daily-lock-overlay');
-    const winModal = document.getElementById('win-modal');
+const getHariIniKey = () => {
+    const d = new Date();
+    return `sudoku_completed_6x6_${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
+};
 
-    // SOAL STATIS 6X6 UNTUK TESTING
-    const soalStatis = {
-        level: "Easy",
-        puzzle: [
-            [4, 0, 0, 1, 0, 0],
-            [0, 2, 3, 0, 4, 0],
-            [0, 0, 0, 0, 3, 4],
-            [3, 4, 0, 0, 0, 0],
-            [0, 3, 0, 4, 6, 0],
-            [0, 0, 4, 0, 0, 3]
-        ],
-        solution: [
-            [4, 5, 6, 1, 2, 3],
-            [1, 2, 3, 6, 4, 5],
-            [2, 6, 1, 5, 3, 4],
-            [3, 4, 5, 2, 1, 6],
-            [5, 3, 2, 4, 6, 1],
-            [6, 1, 4, 5, 2, 3]
-        ]
-    };
+function periksaKunciHarian() {
+    if (localStorage.getItem(getHariIniKey()) === 'true') {
+        gameFinished = true;
+        boardWrapper.classList.add('paused-board');
+        dailyLockOverlay.classList.remove('hidden');
+        dailyLockOverlay.classList.add('flex');
+        document.getElementById('controls-wrapper').style.opacity = '0.4';
+        document.getElementById('controls-wrapper').style.pointerEvents = 'none';
+        document.getElementById('pause-btn').disabled = true;
+        return true;
+    }
+    return false;
+}
 
-    const getHariIniKey = () => {
-        const d = new Date();
-        return `sudoku_completed_6x6_${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
-    };
-
-    function periksaKunciHarian() {
-        if (localStorage.getItem(getHariIniKey()) === 'true') {
-            gameFinished = true;
-            boardWrapper.classList.add('paused-board');
-            dailyLockOverlay.classList.remove('hidden');
-            dailyLockOverlay.classList.add('flex');
-            document.getElementById('controls-wrapper').style.opacity = '0.4';
-            document.getElementById('controls-wrapper').style.pointerEvents = 'none';
-            document.getElementById('pause-btn').disabled = true;
-            return true;
-        }
-        return false;
+// Fungsi untuk menarik data dari file soal.json
+async function muatSoalDariJson() {
+    if (periksaKunciHarian()) {
+        document.getElementById('game-level-info').textContent = "Lvl Completed";
+        return;
     }
 
-    function muatSoalLokalStatis() {
-        if (periksaKunciHarian()) {
-            document.getElementById('game-level-info').textContent = "Lvl Completed";
-            return;
-        }
+    try {
+        const response = await fetch('soal.json');
+        const data = await response.json();
+        
+        // Mengambil tanggal hari ini (1-31)
+        const hari = new Date().getDate();
+        
+        // Ambil soal berdasarkan tanggal. Jika tanggal melebihi jumlah soal (contoh jika hanya ada 5 id), kembali ke ID 1
+        const targetId = data[hari] ? hari : "1";
+        const soal = data[targetId];
 
-        // Memuat variabel langsung dari objek data statis diatas
+        // Memasukkan array puzzle dan solution ke variabel array satu dimensi
         for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
-            solution.push(soalStatis.solution[r][c]);
-            clues.push(soalStatis.puzzle[r][c]);
+            solution.push(soal.solution[r][c]);
+            clues.push(soal.puzzle[r][c]);
         }
 
-        document.getElementById('game-level-info').textContent = `Lvl ${soalStatis.level}`;
-
+        document.getElementById('game-level-info').textContent = `Lvl ${soal.level}`;
         initGrid();
         startTimer();
+    } catch (error) {
+        console.error("Gagal memuat soal dari soal.json:", error);
+        document.getElementById('game-level-info').textContent = "Error";
     }
+}
 
-    function initGrid() {
-        gridElement.innerHTML = '';
-        for (let i = 0; i < 36; i++) {
-            const cell = document.createElement('div');
-            const row = Math.floor(i / 6), col = i % 6;
-            cell.className = 'cell flex items-center justify-center cursor-pointer relative transition-all duration-150';
-            
-            if ((col + 1) % 3 === 0 && col !== 5) cell.classList.add('block-border-right');
-            if ((row + 1) % 2 === 0 && row !== 5) cell.classList.add('block-border-bottom');
-            
-            cell.dataset.index = i;
-            cell.dataset.correct = solution[i];
-            if (clues[i] !== 0) { cell.textContent = clues[i]; cell.dataset.fixed = "true"; }
-            cell.addEventListener('click', () => selectCell(cell));
-            gridElement.appendChild(cell);
-        }
+function initGrid() {
+    gridElement.innerHTML = '';
+    for (let i = 0; i < 36; i++) {
+        const cell = document.createElement('div');
+        const row = Math.floor(i / 6), col = i % 6;
+        cell.className = 'cell flex items-center justify-center cursor-pointer relative transition-all duration-150';
+        if ((col + 1) % 3 === 0 && col !== 5) cell.classList.add('block-border-right');
+        if ((row + 1) % 2 === 0 && row !== 5) cell.classList.add('block-border-bottom');
+        cell.dataset.index = i;
+        cell.dataset.correct = solution[i];
+        if (clues[i] !== 0) { cell.textContent = clues[i]; cell.dataset.fixed = "true"; }
+        cell.addEventListener('click', () => selectCell(cell));
+        gridElement.appendChild(cell);
     }
+}
 
-    function clearErrorState() {
-        Array.from(gridElement.children).forEach(c => c.classList.remove('error-state'));
+function clearErrorState() {
+    Array.from(gridElement.children).forEach(c => c.classList.remove('error-state'));
+}
+
+function highlightCells(index) {
+    const row = Math.floor(index / 6), col = index % 6;
+    const cells = gridElement.children;
+    const targetValue = cells[index].textContent.trim();
+    for (let i = 0; i < 36; i++) {
+        const cRow = Math.floor(i / 6), cCol = i % 6;
+        const cVal = cells[i].textContent.trim();
+        cells[i].classList.remove('highlight-crosshair', 'highlight-same-number');
+        if (i === index) continue;
+        if (targetValue !== '' && cVal === targetValue) cells[i].classList.add('highlight-same-number');
+        else if (cRow === row || cCol === col) cells[i].classList.add('highlight-crosshair');
     }
+}
 
-    function highlightCells(index) {
-        const row = Math.floor(index / 6), col = index % 6;
-        const cells = gridElement.children;
-        const targetValue = cells[index].textContent.trim();
+function selectCell(cell) {
+    if (isPaused || gameFinished) return;
+    clearErrorState(); 
+    if (currentSelectedCell) currentSelectedCell.classList.remove('selected');
+    cell.classList.add('selected');
+    currentSelectedCell = cell;
+    highlightCells(parseInt(cell.dataset.index));
+}
 
-        for (let i = 0; i < 36; i++) {
-            const cRow = Math.floor(i / 6), cCol = i % 6;
-            const cVal = cells[i].textContent.trim();
-            cells[i].classList.remove('highlight-crosshair', 'highlight-same-number');
-            if (i === index) continue;
-            if (targetValue !== '' && cVal === targetValue) cells[i].classList.add('highlight-same-number');
-            else if (cRow === row || cCol === col) cells[i].classList.add('highlight-crosshair');
-        }
+function checkGroupFlash(index) {
+    const row = Math.floor(index / 6), col = index % 6;
+    const bR = Math.floor(row / 2) * 2;
+    const bC = Math.floor(col / 3) * 3;
+    const cells = gridElement.children;
+    let rB = true, cB = true, xB = true;
+    for (let i = 0; i < 6; i++) {
+        if (parseInt(cells[row * 6 + i].textContent) !== parseInt(cells[row * 6 + i].dataset.correct)) rB = false;
+        if (parseInt(cells[i * 6 + col].textContent) !== parseInt(cells[i * 6 + col].dataset.correct)) cB = false;
     }
-
-    function selectCell(cell) {
-        if (isPaused || gameFinished) return;
-        clearErrorState(); 
-        if (currentSelectedCell) currentSelectedCell.classList.remove('selected');
-        cell.classList.add('selected');
-        currentSelectedCell = cell;
-        highlightCells(parseInt(cell.dataset.index));
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) {
+        if (parseInt(cells[(bR + r) * 6 + (bC + c)].textContent) !== parseInt(cells[(bR + r) * 6 + (bC + c)].dataset.correct)) xB = false;
     }
-
-    function checkGroupFlash(index) {
-        const row = Math.floor(index / 6), col = index % 6;
-        const bR = Math.floor(row / 2) * 2;
-        const bC = Math.floor(col / 3) * 3;
-        const cells = gridElement.children;
-        let rB = true, cB = true, xB = true;
-
-        for (let i = 0; i < 6; i++) {
-            if (parseInt(cells[row * 6 + i].textContent) !== parseInt(cells[row * 6 + i].dataset.correct)) rB = false;
-            if (parseInt(cells[i * 6 + col].textContent) !== parseInt(cells[i * 6 + col].dataset.correct)) cB = false;
-        }
-        
-        for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) {
-            if (parseInt(cells[(bR + r) * 6 + (bC + c)].textContent) !== parseInt(cells[(bR + r) * 6 + (bC + c)].dataset.correct)) xB = false;
-        }
-
-        const flash = (ids) => ids.forEach(id => {
-            cells[id].classList.add('animate-grid-flash');
-            setTimeout(() => cells[id].classList.remove('animate-grid-flash'), 600);
-        });
-
-        if (rB) flash([...Array(6).keys()].map(i => row * 6 + i));
-        if (cB) flash([...Array(6).keys()].map(i => i * 6 + col));
-        if (xB) {
-            let ids = [];
-            for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) ids.push((bR + r) * 6 + (bC + c));
-            flash(ids);
-        }
+    const flash = (ids) => ids.forEach(id => {
+        cells[id].classList.add('animate-grid-flash');
+        setTimeout(() => cells[id].classList.remove('animate-grid-flash'), 600);
+    });
+    if (rB) flash([...Array(6).keys()].map(i => row * 6 + i));
+    if (cB) flash([...Array(6).keys()].map(i => i * 6 + col));
+    if (xB) {
+        let ids = [];
+        for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) ids.push((bR + r) * 6 + (bC + c));
+        flash(ids);
     }
+}
 
-    function inputNumber(val) {
-        if (isPaused || gameFinished || !currentSelectedCell || currentSelectedCell.dataset.fixed === "true") return;
-        const idx = parseInt(currentSelectedCell.dataset.index);
-        
+function inputNumber(val) {
+    if (isPaused || gameFinished || !currentSelectedCell || currentSelectedCell.dataset.fixed === "true") return;
+    const idx = parseInt(currentSelectedCell.dataset.index);
+    clearErrorState();
+    history.push({ index: idx, val: currentSelectedCell.textContent });
+    currentSelectedCell.textContent = val;
+    if (parseInt(val) === parseInt(currentSelectedCell.dataset.correct)) {
+        checkGroupFlash(idx);
+        if (Array.from(gridElement.children).every(c => parseInt(c.textContent) === parseInt(c.dataset.correct))) triggerWin();
+    }
+    highlightCells(idx);
+}
+
+function hapusAngkaPilihan() {
+    if(currentSelectedCell && currentSelectedCell.dataset.fixed !== "true") { 
         clearErrorState();
-        history.push({ index: idx, val: currentSelectedCell.textContent });
-        currentSelectedCell.textContent = val;
-        
-        if (parseInt(val) === parseInt(currentSelectedCell.dataset.correct)) {
-            checkGroupFlash(idx);
-            if (Array.from(gridElement.children).every(c => parseInt(c.textContent) === parseInt(c.dataset.correct))) triggerWin();
-        }
-        highlightCells(idx);
+        currentSelectedCell.textContent = ''; 
+        highlightCells(parseInt(currentSelectedCell.dataset.index)); 
     }
+}
 
-    function hapusAngkaPilihan() {
-        if(currentSelectedCell && currentSelectedCell.dataset.fixed !== "true") { 
-            clearErrorState();
-            currentSelectedCell.textContent = ''; 
-            highlightCells(parseInt(currentSelectedCell.dataset.index)); 
-        }
-    }
-
-    function triggerWin() {
-        gameFinished = true; 
-        clearInterval(timerInterval);
-        localStorage.setItem(getHariIniKey(), 'true');
-
-        document.getElementById('win-time').textContent = formatTime(timerSeconds);
-        winModal.classList.add('active');
-        Array.from(gridElement.children).forEach(c => {
-            c.classList.add('animate-grid-flash');
-            c.classList.remove('selected', 'highlight-crosshair', 'highlight-same-number', 'error-state');
-        });
-    }
-
-    if (localStorage.getItem('theme') === 'dark') setDark(true);
-    document.getElementById('dark-mode-btn').addEventListener('click', () => setDark(!document.documentElement.classList.contains('dark')));
-
-    function togglePause() {
-        if (gameFinished) return;
-        isPaused = !isPaused;
-        boardWrapper.classList.toggle('paused-board', isPaused);
-        pauseOverlay.classList.toggle('hidden', !isPaused);
-        pauseOverlay.classList.toggle('flex', isPaused);
-        document.getElementById('pause-btn-icon').textContent = isPaused ? 'play_arrow' : 'pause';
-    }
-
-    function setDark(isDark) {
-        document.documentElement.classList.toggle('dark', isDark);
-        document.getElementById('dark-mode-icon').textContent = isDark ? 'light_mode' : 'dark_mode';
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    }
-
-    function startTimer() { timerInterval = setInterval(() => { if (!isPaused && !gameFinished) { timerSeconds++; document.getElementById('timer').textContent = formatTime(timerSeconds); } }, 1000); }
-    function formatTime(s) { return `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`; }
-
-    // KEYBOARD NAVIGATION
-    document.addEventListener('keydown', (e) => {
-        if (isPaused || gameFinished) return;
-
-        if (e.key.startsWith('Arrow')) {
-            e.preventDefault();
-            let indexAktif = currentSelectedCell ? parseInt(currentSelectedCell.dataset.index) : 0;
-            let baris = Math.floor(indexAktif / 6);
-            let kolom = indexAktif % 6;
-
-            if (e.key === 'ArrowUp' && baris > 0) baris--;
-            else if (e.key === 'ArrowDown' && baris < 5) baris++;
-            else if (e.key === 'ArrowLeft' && kolom > 0) kolom--;
-            else if (e.key === 'ArrowRight' && kolom < 5) kolom++;
-
-            const targetCell = gridElement.children[baris * 6 + kolom];
-            if (targetCell) selectCell(targetCell);
-            return;
-        }
-
-        if (e.key >= '1' && e.key <= '6') {
-            inputNumber(e.key);
-            return;
-        }
-
-        if (e.key === 'Backspace' || e.key === 'Delete') {
-            e.preventDefault();
-            hapusAngkaPilihan();
-            return;
-        }
+function triggerWin() {
+    gameFinished = true; 
+    clearInterval(timerInterval);
+    localStorage.setItem(getHariIniKey(), 'true');
+    document.getElementById('win-time').textContent = formatTime(timerSeconds);
+    winModal.classList.add('active');
+    Array.from(gridElement.children).forEach(c => {
+        c.classList.add('animate-grid-flash');
+        c.classList.remove('selected', 'highlight-crosshair', 'highlight-same-number', 'error-state');
     });
+}
 
-    // EVENT LISTENERS BUTTON ACTION
-    document.querySelectorAll('.num-btn').forEach(b => b.addEventListener('click', () => inputNumber(b.dataset.value)));
-    document.getElementById('erase-btn').addEventListener('click', hapusAngkaPilihan);
-    document.getElementById('undo-btn').addEventListener('click', () => { 
-        if(history.length > 0) { 
-            clearErrorState();
-            const l = history.pop(); 
-            const c = gridElement.children[l.index]; 
-            c.textContent = l.val; 
-            selectCell(c); 
+if (localStorage.getItem('theme') === 'dark') setDark(true);
+document.getElementById('dark-mode-btn').addEventListener('click', () => setDark(!document.documentElement.classList.contains('dark')));
+
+function togglePause() {
+    if (gameFinished) return;
+    isPaused = !isPaused;
+    boardWrapper.classList.toggle('paused-board', isPaused);
+    pauseOverlay.classList.toggle('hidden', !isPaused);
+    pauseOverlay.classList.toggle('flex', isPaused);
+    document.getElementById('pause-btn-icon').textContent = isPaused ? 'play_arrow' : 'pause';
+}
+
+function setDark(isDark) {
+    document.documentElement.classList.toggle('dark', isDark);
+    document.getElementById('dark-mode-icon').textContent = isDark ? 'light_mode' : 'dark_mode';
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
+function startTimer() { 
+    timerInterval = setInterval(() => { 
+        if (!isPaused && !gameFinished) { 
+            timerSeconds++; 
+            document.getElementById('timer').textContent = formatTime(timerSeconds); 
         } 
-    });
-    
-    document.getElementById('check-btn').addEventListener('click', () => {
-        if (checkOnCooldown || isPaused || gameFinished) return;
-        
-        let adaMeleset = false;
-        Array.from(gridElement.children).forEach(c => {
-            const isiTeks = c.textContent.trim();
-            if (isiTeks !== '' && c.dataset.fixed !== "true") {
-                if (parseInt(isiTeks) !== parseInt(c.dataset.correct)) {
-                    c.classList.add('error-state');
-                    adaMeleset = true;
-                }
+    }, 1000); 
+}
+
+function formatTime(s) { 
+    return `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`; 
+}
+
+// KEYBOARD NAVIGATION
+document.addEventListener('keydown', (e) => {
+    if (isPaused || gameFinished) return;
+    if (e.key.startsWith('Arrow')) {
+        e.preventDefault();
+        let indexAktif = currentSelectedCell ? parseInt(currentSelectedCell.dataset.index) : 0;
+        let baris = Math.floor(indexAktif / 6);
+        let kolom = indexAktif % 6;
+        if (e.key === 'ArrowUp' && baris > 0) baris--;
+        else if (e.key === 'ArrowDown' && baris < 5) baris++;
+        else if (e.key === 'ArrowLeft' && kolom > 0) kolom--;
+        else if (e.key === 'ArrowRight' && kolom < 5) kolom++;
+        const targetCell = gridElement.children[baris * 6 + kolom];
+        if (targetCell) selectCell(targetCell);
+        return;
+    }
+    if (e.key >= '1' && e.key <= '6') {
+        inputNumber(e.key);
+        return;
+    }
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+        e.preventDefault();
+        hapusAngkaPilihan();
+        return;
+    }
+});
+
+// EVENT LISTENERS BUTTON ACTION
+document.querySelectorAll('.num-btn').forEach(b => b.addEventListener('click', () => inputNumber(b.dataset.value)));
+document.getElementById('erase-btn').addEventListener('click', hapusAngkaPilihan);
+
+document.getElementById('undo-btn').addEventListener('click', () => { 
+    if(history.length > 0) { 
+        clearErrorState();
+        const l = history.pop(); 
+        const c = gridElement.children[l.index]; 
+        c.textContent = l.val; 
+        selectCell(c); 
+    } 
+});
+
+document.getElementById('check-btn').addEventListener('click', () => {
+    if (checkOnCooldown || isPaused || gameFinished) return;
+    let adaMeleset = false;
+    Array.from(gridElement.children).forEach(c => {
+        const isiTeks = c.textContent.trim();
+        if (isiTeks !== '' && c.dataset.fixed !== "true") {
+            if (parseInt(isiTeks) !== parseInt(c.dataset.correct)) {
+                c.classList.add('error-state');
+                adaMeleset = true;
             }
-        });
-
-        checkOnCooldown = true; 
-        document.getElementById('check-btn').disabled = true;
-        
-        setTimeout(() => { 
-            checkOnCooldown = false; 
-            document.getElementById('check-btn').disabled = false; 
-            clearErrorState(); 
-        }, 10000);
+        }
     });
+    checkOnCooldown = true; 
+    document.getElementById('check-btn').disabled = true;
+    setTimeout(() => { 
+        checkOnCooldown = false; 
+        document.getElementById('check-btn').disabled = false; 
+        clearErrorState(); 
+    }, 10000);
+});
 
-    document.getElementById('hint-btn').addEventListener('click', () => {
-        if (hintOnCooldown || isPaused || gameFinished || !currentSelectedCell || currentSelectedCell.dataset.fixed === "true") return;
-        if (parseInt(currentSelectedCell.textContent) === parseInt(currentSelectedCell.dataset.correct)) return;
-        
-        inputNumber(currentSelectedCell.dataset.correct);
-        hintOnCooldown = true; 
-        document.getElementById('hint-btn').disabled = true;
-        setTimeout(() => { hintOnCooldown = false; document.getElementById('hint-btn').disabled = false; }, 10000);
-    });
+document.getElementById('hint-btn').addEventListener('click', () => {
+    if (hintOnCooldown || isPaused || gameFinished || !currentSelectedCell || currentSelectedCell.dataset.fixed === "true") return;
+    if (parseInt(currentSelectedCell.textContent) === parseInt(currentSelectedCell.dataset.correct)) return;
+    inputNumber(currentSelectedCell.dataset.correct);
+    hintOnCooldown = true; 
+    document.getElementById('hint-btn').disabled = true;
+    setTimeout(() => { hintOnCooldown = false; document.getElementById('hint-btn').disabled = false; }, 10000);
+});
 
-    document.getElementById('pause-btn').addEventListener('click', togglePause);
-    document.getElementById('resume-btn').addEventListener('click', togglePause);
-    document.getElementById('tutorial-btn').addEventListener('click', () => { if(!isPaused) togglePause(); document.getElementById('tutorial-modal').classList.add('active'); });
-    document.getElementById('close-modal-top').addEventListener('click', () => { document.getElementById('tutorial-modal').classList.remove('active'); if(isPaused) togglePause(); });
+document.getElementById('pause-btn').addEventListener('click', togglePause);
+document.getElementById('resume-btn').addEventListener('click', togglePause);
+document.getElementById('tutorial-btn').addEventListener('click', () => { if(!isPaused) togglePause(); document.getElementById('tutorial-modal').classList.add('active'); });
+document.getElementById('close-modal-top').addEventListener('click', () => { document.getElementById('tutorial-modal').classList.remove('active'); if(isPaused) togglePause(); });
 
-    // Panggil fungsi muat data statis lokal
-    muatSoalLokalStatis();
+// Panggil fungsi muat data dari JSON
+muatSoalDariJson();
 </script>
-</body></html>
+</body>
+</html>
