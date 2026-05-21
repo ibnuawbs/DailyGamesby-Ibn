@@ -324,6 +324,38 @@ async function muatSoalDariJson() {
         // Mengambil tanggal hari ini (1-31)
         const hari = new Date().getDate();
         
+        // Mencari soal di dalam array "puzzles" yang ID-nya sama dengan tanggal hari ini
+        let soal = data.puzzles.find(p => p.id === hari);
+        
+        // Jika soal untuk tanggal hari ini tidak ditemukan (fallback), kembali gunakan soal ID 1
+        if (!soal) {
+            soal = data.puzzles.find(p => p.id === 1);
+        }
+
+        // Memasukkan array puzzle dan solution ke variabel array satu dimensi
+        for (let r = 0; r < 6; r++) {
+            for (let c = 0; c < 6; c++) {
+                solution.push(soal.solution[r][c]);
+                clues.push(soal.puzzle[r][c]);
+            }
+        }
+
+        document.getElementById('game-level-info').textContent = `Lvl ${soal.level}`;
+        initGrid();
+        startTimer();
+    } catch (error) {
+        console.error("Gagal memuat soal dari soal.json:", error);
+        document.getElementById('game-level-info').textContent = "Error";
+    }
+}
+
+    try {
+        const response = await fetch('soal.json');
+        const data = await response.json();
+        
+        // Mengambil tanggal hari ini (1-31)
+        const hari = new Date().getDate();
+        
         // Ambil soal berdasarkan tanggal. Jika tanggal melebihi jumlah soal (contoh jika hanya ada 5 id), kembali ke ID 1
         const targetId = data[hari] ? hari : "1";
         const soal = data[targetId];
